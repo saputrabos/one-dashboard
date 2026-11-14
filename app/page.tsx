@@ -298,214 +298,56 @@ const menu = [
 // Ini untuk menentukan pilihan bahasa.
 const languageOptions: Language[] = ["id", "en"];
 
-// Ini untuk menyediakan data contoh konten Instagram.
-// Data ini bukan data asli dari akun Instagram.
-const konten: Content[] = [
-  {
-    id: 1,
-    judul: "Tips Membuat Konten Viral",
-    jenis: "Reels",
-    tanggal: "10 Nov 2026",
-    hariKe: 2,
-    jangkauan: 8200,
-    tayangan: 12400,
-    suka: 1200,
-    komentar: 180,
-    bagikan: 320,
-    simpan: 450,
-    nonPengikut: 68,
-    kunjungan: 210,
-    pengikut: 42,
-    gambar: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=300",
-  },
-  {
-    id: 2,
-    judul: "Strategi Instagram Marketing",
-    jenis: "Carousel",
-    tanggal: "09 Nov 2026",
-    hariKe: 3,
-    jangkauan: 6100,
-    tayangan: 9100,
-    suka: 850,
-    komentar: 120,
-    bagikan: 210,
-    simpan: 380,
-    nonPengikut: 54,
-    kunjungan: 145,
-    pengikut: 28,
-    gambar: "https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=300",
-  },
-  {
-    id: 3,
-    judul: "Di Balik Layar Produksi",
-    jenis: "Reels",
-    tanggal: "08 Nov 2026",
-    hariKe: 4,
-    jangkauan: 4300,
-    tayangan: 5700,
-    suka: 510,
-    komentar: 65,
-    bagikan: 90,
-    simpan: 110,
-    nonPengikut: 42,
-    kunjungan: 85,
-    pengikut: 12,
-    gambar: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=300",
-  },
-  {
-    id: 4,
-    judul: "Panduan Memilih Produk",
-    jenis: "Foto",
-    tanggal: "07 Nov 2026",
-    hariKe: 5,
-    jangkauan: 2800,
-    tayangan: 3900,
-    suka: 320,
-    komentar: 40,
-    bagikan: 35,
-    simpan: 75,
-    nonPengikut: 30,
-    kunjungan: 55,
-    pengikut: 8,
-    gambar: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=300",
-  },
-  {
-    id: 5,
-    judul: "Cara Meningkatkan Engagement",
-    jenis: "Carousel",
-    tanggal: "05 Nov 2026",
-    hariKe: 7,
-    jangkauan: 5200,
-    tayangan: 7600,
-    suka: 690,
-    komentar: 95,
-    bagikan: 155,
-    simpan: 290,
-    nonPengikut: 59,
-    kunjungan: 130,
-    pengikut: 24,
-    gambar: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300",
-  },
-  {
-    id: 6,
-    judul: "Kesalahan dalam Membuat Konten",
-    jenis: "Reels",
-    tanggal: "02 Nov 2026",
-    hariKe: 10,
-    jangkauan: 3900,
-    tayangan: 5400,
-    suka: 430,
-    komentar: 55,
-    bagikan: 70,
-    simpan: 95,
-    nonPengikut: 48,
-    kunjungan: 72,
-    pengikut: 10,
-    gambar: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=300",
-  },
-  {
-    id: 7,
-    judul: "Panduan Membuat Caption",
-    jenis: "Foto",
-    tanggal: "29 Okt 2026",
-    hariKe: 14,
-    jangkauan: 2100,
-    tayangan: 2900,
-    suka: 240,
-    komentar: 32,
-    bagikan: 20,
-    simpan: 65,
-    nonPengikut: 27,
-    kunjungan: 42,
-    pengikut: 5,
-    gambar: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300",
-  },
-  {
-    id: 8,
-    judul: "Strategi Membangun Brand",
-    jenis: "Carousel",
-    tanggal: "24 Okt 2026",
-    hariKe: 19,
-    jangkauan: 7400,
-    tayangan: 10300,
-    suka: 980,
-    komentar: 145,
-    bagikan: 250,
-    simpan: 410,
-    nonPengikut: 62,
-    kunjungan: 180,
-    pengikut: 35,
-    gambar: "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=300",
-  },
-  {
-    id: 9,
-    judul: "Behind The Scene Tim Marketing",
-    jenis: "Reels",
-    tanggal: "18 Okt 2026",
-    hariKe: 25,
-    jangkauan: 4800,
-    tayangan: 6400,
-    suka: 560,
-    komentar: 75,
-    bagikan: 110,
-    simpan: 130,
-    nonPengikut: 51,
-    kunjungan: 95,
-    pengikut: 17,
-    gambar: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=300",
-  },
-  {
-    id: 10,
-    judul: "Inspirasi Desain Feed",
-    jenis: "Foto",
-    tanggal: "10 Okt 2026",
-    hariKe: 33,
-    jangkauan: 1900,
-    tayangan: 2500,
-    suka: 210,
-    komentar: 25,
-    bagikan: 18,
-    simpan: 42,
-    nonPengikut: 24,
-    kunjungan: 30,
-    pengikut: 3,
-    gambar: "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=300",
-  },
-  {
-    id: 11,
-    judul: "Cara Membaca Insight Instagram",
-    jenis: "Carousel",
-    tanggal: "27 Sep 2026",
-    hariKe: 46,
-    jangkauan: 6800,
-    tayangan: 9400,
-    suka: 790,
-    komentar: 105,
-    bagikan: 185,
-    simpan: 340,
-    nonPengikut: 57,
-    kunjungan: 155,
-    pengikut: 29,
-    gambar: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300",
-  },
-  {
-    id: 12,
-    judul: "Konten Promosi Produk",
-    jenis: "Foto",
-    tanggal: "08 Sep 2026",
-    hariKe: 65,
-    jangkauan: 1500,
-    tayangan: 2100,
-    suka: 145,
-    komentar: 18,
-    bagikan: 12,
-    simpan: 28,
-    nonPengikut: 21,
-    kunjungan: 24,
-    pengikut: 2,
-    gambar: "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300",
-  },
+// Ini untuk menentukan alamat backend FastAPI.
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
+// Ini untuk menyediakan gambar cadangan karena API belum mengirim URL gambar.
+const gambarCadangan = [
+  "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=300",
+  "https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=300",
+  "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=300",
+  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=300",
+  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300",
+  "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=300",
+  "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=300",
+  "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=300",
+  "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=300",
+  "https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=300",
+  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300",
+  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=300",
 ];
+
+// Ini untuk mengubah data API menjadi format yang dipakai komponen dashboard.
+function ubahDataApi(item: Record<string, unknown>): Content {
+  const hariKe = Number(item.days_ago ?? 0);
+  const tanggalKonten = new Date(Date.now() - hariKe * 24 * 60 * 60 * 1000);
+  const jenisApi = String(item.type ?? "Foto").toLowerCase();
+  const jenis: ContentType =
+    jenisApi === "reels" ? "Reels" : jenisApi === "carousel" ? "Carousel" : "Foto";
+
+  return {
+    id: Number(item.id),
+    judul: String(item.title ?? "Konten Instagram"),
+    jenis,
+    tanggal: tanggalKonten.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    hariKe,
+    jangkauan: Number(item.reach ?? 0),
+    tayangan: Number(item.impressions ?? 0),
+    suka: Number(item.likes ?? 0),
+    komentar: Number(item.comments ?? 0),
+    bagikan: Number(item.shares ?? 0),
+    simpan: Number(item.saves ?? 0),
+    nonPengikut: Number(item.non_followers ?? 0),
+    kunjungan: Number(item.profile_visits ?? 0),
+    pengikut: Number(item.follows ?? 0),
+    gambar: gambarCadangan[(Number(item.id) - 1) % gambarCadangan.length],
+  };
+}
 
 // Ini untuk mengubah angka menjadi format yang mudah dibaca.
 function formatAngka(angka: number, locale: Language = "id") {
@@ -546,6 +388,9 @@ export default function Dashboard() {
   const [jenisKonten, setJenisKonten] = useState<ContentFilter>("Semua");
   const [pencarian, setPencarian] = useState("");
   const [sidebarTerbuka, setSidebarTerbuka] = useState(false);
+  const [kontenTersaring, setKontenTersaring] = useState<Content[]>([]);
+  const [sedangMemuat, setSedangMemuat] = useState(true);
+  const [apiError, setApiError] = useState("");
 
   // Ini untuk mengambil bahasa yang sebelumnya dipilih pengguna.
   useEffect(() => {
@@ -574,14 +419,47 @@ export default function Dashboard() {
   const activeMenu =
     menuItems.find((item) => item.key === menuAktif) ?? menuItems[0];
 
-  // Ini untuk menyaring konten berdasarkan periode, jenis, dan pencarian.
-  const kontenTersaring = useMemo(() => {
-    return konten
-      .filter((item) => item.hariKe <= periode)
-      .filter((item) => jenisKonten === "Semua" || item.jenis === jenisKonten)
-      .filter((item) =>
-        item.judul.toLowerCase().includes(pencarian.toLowerCase())
-      );
+  // Ini untuk mengambil konten dari FastAPI sesuai filter aktif.
+  useEffect(() => {
+    const controller = new AbortController();
+
+    async function ambilKonten() {
+      setSedangMemuat(true);
+      setApiError("");
+
+      const params = new URLSearchParams({
+        period: String(periode),
+        content_type:
+          jenisKonten === "Semua" ? "all" : jenisKonten.toLowerCase(),
+        search: pencarian.trim(),
+      });
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/analytics/content?${params.toString()}`,
+          { signal: controller.signal, cache: "no-store" }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Backend merespons dengan status ${response.status}`);
+        }
+
+        const hasil = await response.json();
+        const daftar = Array.isArray(hasil.data) ? hasil.data : [];
+        setKontenTersaring(daftar.map(ubahDataApi));
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") return;
+        setKontenTersaring([]);
+        setApiError(
+          "Tidak dapat terhubung ke FastAPI. Pastikan backend berjalan di http://127.0.0.1:8000."
+        );
+      } finally {
+        if (!controller.signal.aborted) setSedangMemuat(false);
+      }
+    }
+
+    ambilKonten();
+    return () => controller.abort();
   }, [periode, jenisKonten, pencarian]);
 
   // Ini untuk menghitung total statistik dari konten yang sudah disaring.
@@ -992,6 +870,28 @@ export default function Dashboard() {
             {t.periods[[7, 30, 90].indexOf(periode)]}
           </span>
         </section>
+
+        {/* Ini untuk memberi tahu pengguna saat API sedang memuat atau gagal diakses. */}
+        {apiError && (
+          <div
+            role="alert"
+            style={{
+              margin: "0 0 16px",
+              padding: "12px 14px",
+              borderRadius: 10,
+              background: "#fff1f0",
+              color: "#b42318",
+              fontSize: 13,
+            }}
+          >
+            {apiError}
+          </div>
+        )}
+        {sedangMemuat && !apiError && (
+          <div style={{ margin: "0 0 16px", color: "#64748b", fontSize: 13 }}>
+            {language === "id" ? "Memuat data dari backend..." : "Loading data from backend..."}
+          </div>
+        )}
 
         {/* Ini untuk menampilkan halaman ringkasan utama. */}
         {menuAktif === "overview" && (
