@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -17,12 +17,46 @@ import styles from "./login.module.css";
 export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
+  const [metaMessage, setMetaMessage] = useState("");
+  const [metaAccount, setMetaAccount] = useState("");
 
-  // Ini untuk memberi informasi bahwa koneksi Meta belum diaktifkan.
+  // Ini untuk membaca status koneksi Meta setelah pengguna kembali dari halaman OAuth.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const metaStatus = params.get("meta");
+
+    const messages: Record<string, string> = {
+      connected: "Akun Instagram berhasil dihubungkan dengan Meta.",
+      not_configured: "Meta App belum dikonfigurasi di backend.",
+      denied: "Login Meta dibatalkan.",
+      invalid_state: "Sesi keamanan OAuth tidak valid. Silakan coba lagi.",
+      no_instagram: "Tidak ditemukan Instagram profesional yang terhubung ke Facebook Page.",
+      failed: "Login Meta gagal. Periksa konfigurasi App dan izin API.",
+    };
+
+    if (metaStatus && messages[metaStatus]) {
+      setMetaMessage(messages[metaStatus]);
+      window.history.replaceState({}, "", "/login");
+    }
+
+    // Ini untuk mengambil informasi akun yang sudah terhubung tanpa meminta token ke frontend.
+    fetch("http://127.0.0.1:8000/api/auth/meta/status", {
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.connected && data.account?.username) {
+          setMetaAccount("@" + data.account.username);
+        }
+      })
+      .catch(() => {
+        setMetaMessage("Backend belum dapat dihubungi.");
+      });
+  }, []);
+
+  // Ini untuk memulai proses OAuth Login dengan Meta melalui backend.
   const handleMetaLogin = () => {
-    alert(
-      "Login Meta belum diaktifkan. Kita perlu menyelesaikan integrasi Meta OAuth terlebih dahulu."
-    );
+    window.location.href = "http://127.0.0.1:8000/api/auth/meta/login";
   };
 
 // Ini untuk mengarahkan username ke halaman analisis kompetitor.
@@ -102,12 +136,15 @@ const handleUsernameLogin = () => {
                 <span><span className={styles.check}>✓</span> Analisis performa konten</span>
               </div>
 
+              {metaMessage && <p role="status">{metaMessage}</p>}
+              {metaAccount && <p role="status">Terhubung sebagai {metaAccount}</p>}
+
               <button
                 className={`${styles.actionButton} ${styles.metaButton}`}
                 onClick={handleMetaLogin}
               >
                 <LockKeyhole size={17} />
-                Login dengan Meta
+                {metaAccount ? "Hubungkan Ulang Meta" : "Login dengan Meta"}
                 <ArrowRight size={17} />
               </button>
             </div>
