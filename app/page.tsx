@@ -4,8 +4,6 @@
 // Ini untuk menggunakan state, efek, dan memoization React.
 import { useEffect, useMemo, useState } from "react";
 
-
-
 // Ini untuk membuat grafik analisis.
 import {
   AreaChart,
