@@ -418,8 +418,8 @@ export default function Dashboard() {
   // Ini untuk mencari menu yang sedang aktif.
   const activeMenu =
     menuItems.find((item) => item.key === menuAktif) ?? menuItems[0];
-
-  // Ini untuk mengambil konten dari FastAPI sesuai filter aktif.
+  
+  // Ini untuk mengambil data upload atau mengambil data dari FastAPI.
   useEffect(() => {
     const controller = new AbortController();
 
@@ -427,40 +427,87 @@ export default function Dashboard() {
       setSedangMemuat(true);
       setApiError("");
 
-      const params = new URLSearchParams({
-        period: String(periode),
-        content_type:
-          jenisKonten === "Semua" ? "all" : jenisKonten.toLowerCase(),
-        search: pencarian.trim(),
-      });
-
       try {
+        // Ini untuk memeriksa apakah pengguna sudah mengunggah data.
+        const uploadedRaw = localStorage.getItem(
+          "one-dashboard-uploaded-data"
+        );
+
+        if (uploadedRaw) {
+          const uploadedData = JSON.parse(uploadedRaw) as Record<
+            string,
+            unknown
+          >[];
+
+          // Ini untuk menerapkan filter pada data hasil upload.
+          const filteredData = uploadedData.filter((item) => {
+            const cocokPeriode =
+              Number(item.days_ago ?? 0) <= periode;
+
+            const cocokJenis =
+              jenisKonten === "Semua" ||
+              String(item.type ?? "").toLowerCase() ===
+                jenisKonten.toLowerCase();
+
+            const cocokPencarian = String(item.title ?? "")
+              .toLowerCase()
+              .includes(pencarian.trim().toLowerCase());
+
+            return cocokPeriode && cocokJenis && cocokPencarian;
+          });
+
+          // Ini untuk mengubah data upload ke format dashboard.
+          setKontenTersaring(filteredData.map(ubahDataApi));
+          return;
+        }
+
+        // Ini untuk mengambil data demo dari FastAPI jika belum ada upload.
+        const params = new URLSearchParams({
+          period: String(periode),
+          content_type:
+            jenisKonten === "Semua" ? "all" : jenisKonten.toLowerCase(),
+          search: pencarian.trim(),
+        });
+
         const response = await fetch(
           `${API_BASE_URL}/api/analytics/content?${params.toString()}`,
-          { signal: controller.signal, cache: "no-store" }
+          {
+            signal: controller.signal,
+            cache: "no-store",
+          }
         );
 
         if (!response.ok) {
-          throw new Error(`Backend merespons dengan status ${response.status}`);
+          throw new Error(
+            `Backend merespons dengan status ${response.status}`
+          );
         }
 
         const hasil = await response.json();
         const daftar = Array.isArray(hasil.data) ? hasil.data : [];
+
         setKontenTersaring(daftar.map(ubahDataApi));
       } catch (error) {
-        if (error instanceof Error && error.name === "AbortError") return;
+        if (error instanceof Error && error.name === "AbortError") {
+          return;
+        }
+
         setKontenTersaring([]);
         setApiError(
-          "Tidak dapat terhubung ke FastAPI. Pastikan backend berjalan di http://127.0.0.1:8000."
+          "Tidak dapat mengambil data. Periksa file upload atau koneksi FastAPI."
         );
       } finally {
-        if (!controller.signal.aborted) setSedangMemuat(false);
+        if (!controller.signal.aborted) {
+          setSedangMemuat(false);
+        }
       }
     }
 
     ambilKonten();
+
     return () => controller.abort();
   }, [periode, jenisKonten, pencarian]);
+
 
   // Ini untuk menghitung total statistik dari konten yang sudah disaring.
   const total = useMemo(() => {
