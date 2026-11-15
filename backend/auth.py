@@ -113,6 +113,20 @@ def meta_callback(
         token_data = meta_get(token_url)
         user_token = token_data["access_token"]
 
+        # Ini untuk menukar token awal menjadi token jangka panjang Meta.
+        long_token_params = urllib.parse.urlencode({
+            "grant_type": "fb_exchange_token",
+            "client_id": app_id,
+            "client_secret": app_secret,
+            "fb_exchange_token": user_token,
+        })
+        long_token_url = (
+            f"https://graph.facebook.com/{GRAPH_VERSION}/oauth/access_token?"
+            f"{long_token_params}"
+        )
+        long_token_data = meta_get(long_token_url)
+        user_token = long_token_data.get("access_token", user_token)
+
         # Ini untuk mengambil Facebook Page yang terhubung dengan Instagram profesional.
         account_params = urllib.parse.urlencode({
             "fields": "id,name,access_token,instagram_business_account{id,username}",
