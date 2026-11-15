@@ -1,429 +1,477 @@
 
 "use client";
-import styles from "./upload.css";
 
-// Ini untuk mengelola state dan navigasi halaman.
+// Ini untuk mengelola halaman upload dan membaca file Excel/CSV.
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-
-// Ini untuk membaca file CSV dan Excel.
 import * as XLSX from "xlsx";
-
-// Ini untuk menggunakan ikon.
 import {
-  Upload,
-  FileSpreadsheet,
-  CheckCircle2,
-  AlertCircle,
   ArrowLeft,
-  FileUp,
+  ArrowRight,
+  BarChart3,
+  CheckCircle2,
+  CloudUpload,
+  FileSpreadsheet,
+  FileText,
+  Info,
+  Loader2,
+  ShieldCheck,
+  Upload,
   X,
 } from "lucide-react";
+import "./upload.css";
 
-// Ini untuk menentukan bentuk data yang akan dibaca.
-type UploadedContent = {
-  id: number;
-  title: string;
-  type: string;
-  reach: number;
-  impressions: number;
-  likes: number;
-  comments: number;
-  shares: number;
-  saves: number;
-  non_followers: number;
-  profile_visits: number;
-  follows: number;
-  days_ago: number;
-};
+// Ini untuk menentukan nama penyimpanan data dashboard.
+const STORAGE_DATA = "one-dashboard-uploaded-data";
+const STORAGE_SOURCE = "one-dashboard-data-source";
 
-// Ini untuk menyimpan nama kolom alternatif dari berbagai format.
-const columnAliases: Record<string, string[]> = {
-  title: ["title", "judul", "post", "content", "caption", "media title", "nama konten"],
-  type: ["type", "jenis", "content type", "media type", "tipe konten"],
-  date: ["date", "tanggal", "publish date", "published", "created time"],
-  reach: ["reach", "jangkauan", "accounts reached", "akun dijangkau"],
-  impressions: ["impressions", "tayangan", "views", "plays", "pemutaran"],
+// Ini untuk menentukan format file yang didukung.
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const ACCEPTED_TYPES = [".csv", ".xlsx", ".xls"];
+
+// Ini untuk mengenali nama kolom bahasa Inggris dan Indonesia.
+const COLUMN_ALIASES: Record<string, string[]> = {
+  title: ["title", "judul", "nama konten", "content title"],
+  type: ["type", "tipe", "jenis", "jenis konten", "content type"],
+  date: ["date", "tanggal", "published date", "tanggal publikasi"],
+  reach: ["reach", "jangkauan", "akun dijangkau"],
+  impressions: ["impressions", "tayangan", "impresi"],
   likes: ["likes", "like", "suka"],
   comments: ["comments", "comment", "komentar"],
-  shares: ["shares", "share", "bagikan", "dibagikan"],
-  saves: ["saves", "save", "simpan", "disimpan"],
-  non_followers: ["non followers", "non_followers", "non-followers", "persentase non pengikut"],
-  profile_visits: ["profile visits", "profile_visits", "kunjungan profil"],
-  follows: ["follows", "followers gained", "pengikut baru", "pengikut"],
+  shares: ["shares", "share", "dibagikan"],
+  saves: ["saves", "save", "disimpan"],
+  nonFollowers: ["non followers", "non-followers", "bukan pengikut"],
+  profileVisits: ["profile visits", "kunjungan profil"],
+  follows: ["follows", "followers gained", "pengikut baru", "mengikuti"],
 };
 
-// Ini untuk menyeragamkan nama kolom.
-function normalizeHeader(value: unknown): string {
-  return String(value ?? "")
-    .trim()
+// Ini untuk merapikan nama kolom sebelum dicocokkan.
+function normalizeColumn(value: string) {
+  return value
     .toLowerCase()
+    .trim()
     .replace(/[_-]/g, " ")
     .replace(/\s+/g, " ");
 }
 
-// Ini untuk mencari kolom yang cocok dengan nama yang dikenal.
-function findColumn(headers: string[], key: string): number {
-  const aliases = columnAliases[key] ?? [];
-
-  return headers.findIndex((header) => {
-    const normalized = normalizeHeader(header);
-    return aliases.some((alias) => normalizeHeader(alias) === normalized);
-  });
+// Ini untuk mencari nama kolom yang cocok.
+function findColumn(headers: string[], key: string) {
+  const aliases = COLUMN_ALIASES[key];
+  return headers.find((header) =>
+    aliases.includes(normalizeColumn(header))
+  );
 }
 
-// Ini untuk mengubah nilai angka dari file menjadi angka JavaScript.
-function parseNumber(value: unknown): number {
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? value : 0;
+// Ini untuk mengubah nilai kosong menjadi angka nol.
+function toNumber(value: unknown): number {
+  if (typeof value === "number") return value;
+
+  if (value === null || value === undefined || value === "") {
+    return 0;
   }
 
-  const cleaned = String(value ?? "")
-    .replace(/%/g, "")
-    .replace(/[^\d,.-]/g, "")
-    .replace(/\.(?=\d{3}(\D|$))/g, "")
-    .replace(",", ".");
+  const cleaned = String(value).replace(/[^\d.-]/g, "");
+  const parsed = Number(cleaned);
 
-  const result = Number(cleaned);
-  return Number.isFinite(result) ? result : 0;
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
-// Ini untuk membaca tanggal dan menghitung jaraknya dari hari ini.
-function getDaysAgo(value: unknown, index: number): number {
-  if (!value) return index;
-
-  let date: Date;
-
-  if (value instanceof Date) {
-    date = value;
-  } else if (typeof value === "number") {
-    const parsed = XLSX.SSF.parse_date_code(value);
-    date = parsed
-      ? new Date(parsed.y, parsed.m - 1, parsed.d)
-      : new Date(value);
-  } else {
-    date = new Date(String(value));
+// Ini untuk mengubah data Excel menjadi format dashboard.
+function convertRows(rows: Record<string, unknown>[]) {
+  if (!rows.length) {
+    throw new Error("File tidak memiliki data.");
   }
 
-  if (Number.isNaN(date.getTime())) return index;
+  const headers = Object.keys(rows[0]);
 
-  const difference = Date.now() - date.getTime();
-  return Math.max(0, Math.floor(difference / (1000 * 60 * 60 * 24)));
-}
+  const titleColumn = findColumn(headers, "title");
+  const reachColumn = findColumn(headers, "reach");
 
-// Ini untuk menyeragamkan jenis konten Instagram.
-function normalizeType(value: unknown): string {
-  const type = String(value ?? "").toLowerCase();
-
-  if (type.includes("reel") || type.includes("video")) return "Reels";
-  if (type.includes("carousel") || type.includes("album")) return "Carousel";
-
-  return "Foto";
-}
-
-// Ini untuk mengubah setiap baris file menjadi format dashboard.
-function convertRows(rows: unknown[][]): UploadedContent[] {
-  if (rows.length < 2) {
-    throw new Error("File tidak memiliki data yang cukup.");
-  }
-
-  const headers = rows[0].map((item) => String(item ?? ""));
-  const columnIndex: Record<string, number> = {};
-
-  Object.keys(columnAliases).forEach((key) => {
-    columnIndex[key] = findColumn(headers, key);
-  });
-
-  if (columnIndex.title === -1 || columnIndex.reach === -1) {
+  if (!titleColumn || !reachColumn) {
     throw new Error(
-      "Kolom wajib belum ditemukan. Pastikan tersedia kolom Title/Judul dan Reach/Jangkauan."
+      "Kolom Title dan Reach wajib tersedia. Gunakan Judul dan Jangkauan jika menggunakan bahasa Indonesia."
     );
   }
 
-  const result = rows.slice(1)
-    .filter((row) => row.some((cell) => String(cell ?? "").trim() !== ""))
+  return rows
+    .filter((row) => row[titleColumn] !== undefined && String(row[titleColumn]).trim() !== "")
     .map((row, index) => {
-      const getValue = (key: string) => {
-        const position = columnIndex[key];
-        return position >= 0 ? row[position] : "";
+      const get = (key: string) => {
+        const column = findColumn(headers, key);
+        return column ? row[column] : undefined;
       };
-
-      const title = String(getValue("title") || `Konten ${index + 1}`).trim();
 
       return {
         id: index + 1,
-        title,
-        type: normalizeType(getValue("type")),
-        reach: parseNumber(getValue("reach")),
-        impressions: parseNumber(getValue("impressions")),
-        likes: parseNumber(getValue("likes")),
-        comments: parseNumber(getValue("comments")),
-        shares: parseNumber(getValue("shares")),
-        saves: parseNumber(getValue("saves")),
-        non_followers: parseNumber(getValue("non_followers")),
-        profile_visits: parseNumber(getValue("profile_visits")),
-        follows: parseNumber(getValue("follows")),
-        days_ago: getDaysAgo(getValue("date"), index),
+        title: String(row[titleColumn] ?? `Konten ${index + 1}`),
+        type: String(get("type") || "Photo"),
+        date: String(get("date") || ""),
+        reach: toNumber(row[reachColumn]),
+        impressions: toNumber(get("impressions")),
+        likes: toNumber(get("likes")),
+        comments: toNumber(get("comments")),
+        shares: toNumber(get("shares")),
+        saves: toNumber(get("saves")),
+        nonFollowers: toNumber(get("nonFollowers")),
+        profileVisits: toNumber(get("profileVisits")),
+        follows: toNumber(get("follows")),
       };
     });
-
-  if (result.length === 0) {
-    throw new Error("Tidak ada baris data yang bisa dibaca.");
-  }
-
-  return result;
 }
 
-// Ini adalah halaman upload data.
+// Ini merupakan komponen utama halaman upload.
 export default function UploadPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [fileName, setFileName] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [totalRows, setTotalRows] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [dragging, setDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  // Ini untuk memproses file yang dipilih pengguna.
-  async function handleFile(file?: File) {
-    if (!file) return;
+  // Ini untuk memproses file CSV atau Excel.
+  async function processFile(selectedFile: File) {
+    setError("");
+    setSuccess(false);
+    setData([]);
+    setFile(null);
 
-    setErrorMessage("");
-    setSuccessMessage("");
-    setTotalRows(0);
+    const extension = selectedFile.name
+      .slice(selectedFile.name.lastIndexOf("."))
+      .toLowerCase();
 
-    const extension = file.name.split(".").pop()?.toLowerCase();
-
-    if (!["csv", "xlsx", "xls"].includes(extension ?? "")) {
-      setErrorMessage("Format file tidak didukung. Gunakan CSV, XLSX, atau XLS.");
+    if (!ACCEPTED_TYPES.includes(extension)) {
+      setError("Format file tidak didukung. Gunakan CSV, XLSX, atau XLS.");
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setErrorMessage("Ukuran file terlalu besar. Maksimal 10 MB.");
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      setError("Ukuran file melebihi batas maksimal 10 MB.");
       return;
     }
 
-    setIsLoading(true);
-    setFileName(file.name);
+    if (selectedFile.size === 0) {
+      setError("File yang dipilih kosong.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const buffer = await file.arrayBuffer();
+      const buffer = await selectedFile.arrayBuffer();
 
       const workbook = XLSX.read(buffer, {
         type: "array",
         cellDates: true,
       });
 
-      const firstSheet = workbook.SheetNames[0];
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
 
       if (!firstSheet) {
         throw new Error("Sheet tidak ditemukan dalam file.");
       }
 
-      const worksheet = workbook.Sheets[firstSheet];
-
-      const rows = XLSX.utils.sheet_to_json(worksheet, {
-        header: 1,
-        defval: "",
-        raw: true,
-      }) as unknown[][];
-
-      const convertedData = convertRows(rows);
-
-      // Ini untuk menyimpan data hasil upload di browser.
-      localStorage.setItem(
-        "one-dashboard-uploaded-data",
-        JSON.stringify(convertedData)
+      const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(
+        firstSheet,
+        {
+          defval: "",
+          raw: false,
+        }
       );
 
-      localStorage.setItem("one-dashboard-data-source", "csv-excel");
+      const converted = convertRows(rows);
 
-      setTotalRows(convertedData.length);
-      setSuccessMessage("File berhasil dibaca. Data siap dianalisis.");
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error
-          ? error.message
+      if (!converted.length) {
+        throw new Error("Tidak ada data konten yang bisa diproses.");
+      }
+
+      setFile(selectedFile);
+      setData(converted);
+      setSuccess(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
           : "Terjadi kesalahan saat membaca file."
       );
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }
 
-  // Ini untuk membuka file picker.
-  function openFilePicker() {
-    fileInputRef.current?.click();
+  // Ini untuk menangani file yang dipilih melalui tombol.
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const selectedFile = event.target.files?.[0];
+
+    if (selectedFile) {
+      processFile(selectedFile);
+    }
+
+    event.target.value = "";
   }
 
-  // Ini untuk menghapus pilihan file.
-  function clearFile() {
-    setFileName("");
-    setErrorMessage("");
-    setSuccessMessage("");
-    setTotalRows(0);
+  // Ini untuk menangani drag and drop file.
+  function handleDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setDragging(false);
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+    const droppedFile = event.dataTransfer.files?.[0];
+
+    if (droppedFile) {
+      processFile(droppedFile);
     }
+  }
+
+  // Ini untuk menyimpan data yang sudah diproses.
+  function continueToDashboard() {
+    if (!data.length) return;
+
+    try {
+      localStorage.setItem(STORAGE_DATA, JSON.stringify(data));
+      localStorage.setItem(STORAGE_SOURCE, "excel");
+
+      router.push("/");
+    } catch {
+      setError("Gagal menyimpan data. Periksa ruang penyimpanan browser.");
+    }
+  }
+
+  // Ini untuk menghapus file yang sudah dipilih.
+  function removeFile() {
+    setFile(null);
+    setData([]);
+    setError("");
+    setSuccess(false);
   }
 
   return (
     <main className="upload-page">
-      <div className="upload-container">
-        <button
-          className="upload-back"
-          onClick={() => router.push("/")}
-          type="button"
-        >
-          <ArrowLeft size={17} />
-          Kembali
-        </button>
-
+      <div className="upload-shell">
+        {/* Ini merupakan header halaman upload. */}
         <header className="upload-header">
-          <div className="upload-brand-icon">
-            <FileSpreadsheet size={25} />
-          </div>
+          <a href="/" className="upload-brand">
+            <span className="upload-brand-icon">
+              <BarChart3 size={22} strokeWidth={2.5} />
+            </span>
 
-          <span className="upload-eyebrow">ONE DASHBOARD</span>
+            <span className="upload-brand-text">
+              <strong>ONE DASHBOARD</strong>
+              <small>INSTAGRAM GROWTH INTELLIGENCE</small>
+            </span>
+          </a>
 
-          <h1>Upload Data Instagram</h1>
-
-          <p>
-            Unggah laporan Instagram Insights untuk mulai menganalisis
-            performa konten akun Anda.
-          </p>
+          <a href="/" className="upload-back">
+            <ArrowLeft size={16} />
+            <span>Kembali</span>
+          </a>
         </header>
 
-        <section
-          className={`upload-dropzone ${isDragging ? "dragging" : ""}`}
-          onDragOver={(event) => {
-            event.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={(event) => {
-            event.preventDefault();
-            setIsDragging(false);
-            handleFile(event.dataTransfer.files[0]);
-          }}
-        >
+        {/* Ini merupakan bagian judul halaman. */}
+        <section className="upload-intro">
+          <div className="upload-eyebrow">
+            <span className="upload-eyebrow-dot" />
+            DATA IMPORT
+          </div>
+
+          <h1>
+            Upload Data
+            <span> Instagram</span>
+          </h1>
+
+          <p>
+            Impor laporan Instagram Insights Anda dan ubah data menjadi
+            informasi yang membantu mengembangkan akun.
+          </p>
+        </section>
+
+        {/* Ini merupakan area utama untuk mengunggah file. */}
+        <section className="upload-card">
+          <div className="upload-card-heading">
+            <div>
+              <h2>Import your data</h2>
+              <p>Mulai dengan mengunggah laporan performa konten.</p>
+            </div>
+
+            <div className="upload-secure">
+              <ShieldCheck size={15} />
+              <span>Local import</span>
+            </div>
+          </div>
+
+          <div
+            className={`upload-dropzone ${dragging ? "is-dragging" : ""} ${
+              success ? "has-file" : ""
+            }`}
+            onDragOver={(event) => {
+              event.preventDefault();
+              setDragging(true);
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+          >
+            {loading ? (
+              <div className="upload-loading">
+                <Loader2 size={38} className="upload-spinner" />
+                <h3>Sedang membaca file...</h3>
+                <p>Mohon tunggu sebentar.</p>
+              </div>
+            ) : success && file ? (
+              <div className="upload-file-success">
+                <div className="upload-file-icon success-icon">
+                  <FileSpreadsheet size={32} />
+                </div>
+
+                <h3>File berhasil dibaca!</h3>
+                <p>{file.name}</p>
+
+                <div className="upload-file-meta">
+                  <span>{data.length} konten ditemukan</span>
+                  <span>{(file.size / 1024).toFixed(1)} KB</span>
+                </div>
+
+                <button
+                  type="button"
+                  className="upload-remove"
+                  onClick={removeFile}
+                >
+                  <X size={14} />
+                  Hapus file
+                </button>
+              </div>
+            ) : (
+              <div className="upload-empty">
+                <div className="upload-cloud-icon">
+                  <CloudUpload size={37} strokeWidth={1.7} />
+                </div>
+
+                <h3>Drag & drop file di sini</h3>
+                <p>atau pilih file dari perangkat Anda</p>
+
+                <button
+                  type="button"
+                  className="upload-select-button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload size={17} />
+                  Pilih File
+                </button>
+
+                <div className="upload-format-note">
+                  <FileText size={14} />
+                  CSV, XLSX, XLS
+                  <span className="format-separator">•</span>
+                  Maksimal 10 MB
+                </div>
+              </div>
+            )}
+          </div>
+
           <input
             ref={fileInputRef}
             type="file"
             accept=".csv,.xlsx,.xls"
-            hidden
-            onChange={(event) => handleFile(event.target.files?.[0])}
+            className="upload-hidden-input"
+            onChange={handleFileChange}
           />
 
-          <div className="upload-icon">
-            <Upload size={29} />
-          </div>
+          {/* Ini untuk menampilkan pesan kesalahan. */}
+          {error && (
+            <div className="upload-error">
+              <Info size={17} />
+              <span>{error}</span>
+            </div>
+          )}
 
-          <h2>Drag & drop file di sini</h2>
+          {/* Ini untuk menampilkan ringkasan data yang berhasil dibaca. */}
+          {success && (
+            <div className="upload-success-message">
+              <CheckCircle2 size={17} />
+              Data siap digunakan. Klik tombol di bawah untuk membuka dashboard.
+            </div>
+          )}
 
-          <p>atau pilih file dari perangkat Anda</p>
-
-          <button
-            className="upload-select-button"
-            onClick={openFilePicker}
-            type="button"
-            disabled={isLoading}
-          >
-            <FileUp size={17} />
-            Pilih File
-          </button>
-
-          <span className="upload-format">
-            Format: CSV, XLSX, XLS · Maksimal 10 MB
-          </span>
-        </section>
-
-        {fileName && (
-          <div className="upload-file-info">
-            <div className="upload-file-left">
-              <FileSpreadsheet size={22} />
-
-              <div>
-                <strong>{fileName}</strong>
-                <span>
-                  {isLoading
-                    ? "Sedang membaca file..."
-                    : `${totalRows} baris data ditemukan`}
-                </span>
-              </div>
+          {/* Ini merupakan tombol menuju dashboard. */}
+          <div className="upload-card-footer">
+            <div className="upload-footer-note">
+              <ShieldCheck size={16} />
+              <span>Data diproses di browser Anda</span>
             </div>
 
-            <button onClick={clearFile} type="button" aria-label="Hapus file">
-              <X size={18} />
+            <button
+              type="button"
+              className="upload-continue-button"
+              disabled={!success || loading}
+              onClick={continueToDashboard}
+            >
+              Lanjut ke Dashboard
+              <ArrowRight size={17} />
             </button>
           </div>
-        )}
-
-        {isLoading && (
-          <div className="upload-message upload-loading">
-            Sedang membaca dan memeriksa data...
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="upload-message upload-error">
-            <AlertCircle size={18} />
-            <span>{errorMessage}</span>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="upload-message upload-success">
-            <CheckCircle2 size={18} />
-            <span>{successMessage}</span>
-          </div>
-        )}
-
-        <section className="upload-guide">
-          <h3>Format kolom yang diperlukan</h3>
-
-          <p>
-            File harus memiliki baris pertama sebagai nama kolom. Minimal
-            tersedia kolom <strong>Title</strong> dan <strong>Reach</strong>.
-          </p>
-
-          <div className="upload-columns">
-            <span>Title</span>
-            <span>Type</span>
-            <span>Date</span>
-            <span>Reach</span>
-            <span>Impressions</span>
-            <span>Likes</span>
-            <span>Comments</span>
-            <span>Shares</span>
-            <span>Saves</span>
-            <span>Non Followers</span>
-            <span>Profile Visits</span>
-            <span>Follows</span>
-          </div>
-
-          <p className="upload-note">
-            Kolom selain Title dan Reach bersifat opsional. Nama kolom
-            berbahasa Indonesia seperti Judul, Jangkauan, Suka, dan Komentar
-            juga dikenali.
-          </p>
         </section>
 
-        <button
-          className="upload-continue-button"
-          type="button"
-          disabled={!successMessage || isLoading}
-          onClick={() => router.push("/")}
-        >
-          Lanjut ke Dashboard
-        </button>
+        {/* Ini untuk menjelaskan struktur kolom file. */}
+        <section className="upload-format-section">
+          <div className="upload-format-heading">
+            <div className="upload-format-heading-icon">
+              <FileSpreadsheet size={20} />
+            </div>
 
+            <div>
+              <h2>Format kolom yang diperlukan</h2>
+              <p>
+                Baris pertama harus berisi nama kolom. Minimal tersedia
+                Title dan Reach.
+              </p>
+            </div>
+          </div>
+
+          <div className="upload-columns">
+            {[
+              "Title",
+              "Type",
+              "Date",
+              "Reach",
+              "Impressions",
+              "Likes",
+              "Comments",
+              "Shares",
+              "Saves",
+              "Non Followers",
+              "Profile Visits",
+              "Follows",
+            ].map((column, index) => (
+              <span
+                key={column}
+                className={
+                  index === 0 || index === 3
+                    ? "upload-column required-column"
+                    : "upload-column"
+                }
+              >
+                {column}
+                {(index === 0 || index === 3) && (
+                  <span className="required-star">*</span>
+                )}
+              </span>
+            ))}
+          </div>
+
+          <div className="upload-format-info">
+            <Info size={16} />
+            <p>
+              Kolom selain <strong>Title</strong> dan <strong>Reach</strong>{" "}
+              bersifat opsional. Nama kolom berbahasa Indonesia seperti
+              Judul, Jangkauan, Suka, dan Komentar juga dikenali.
+            </p>
+          </div>
+        </section>
+
+        {/* Ini merupakan footer halaman. */}
         <footer className="upload-footer">
-          One Dashboard · Instagram Growth Intelligence
+          <span>ONE DASHBOARD</span>
+          <span>Instagram Growth Intelligence</span>
         </footer>
       </div>
     </main>

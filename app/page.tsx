@@ -4,6 +4,8 @@
 // Ini untuk menggunakan state, efek, dan memoization React.
 import { useEffect, useMemo, useState } from "react";
 
+
+
 // Ini untuk membuat grafik analisis.
 import {
   AreaChart,
@@ -37,6 +39,7 @@ import {
   LayoutDashboard,
   Menu,
   X,
+  Upload, 
 } from "lucide-react";
 
 // Ini untuk menentukan pilihan bahasa dashboard.
@@ -861,6 +864,11 @@ export default function Dashboard() {
           </div>
 
           <div className="ig-topbar-right">
+            {/* Ini untuk membuka halaman upload CSV dan Excel. */}
+<a href="/upload" className="ig-upload-button">
+  <Upload size={15} />
+  <span>Upload Excel</span>
+</a>
             <div
               className="ig-language-switch"
               role="group"

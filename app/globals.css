@@ -764,3 +764,38 @@ button, input, select {
     line-height: 1.5;
   }
 }
+
+
+/* Ini untuk tombol upload Excel pada bagian atas dashboard. */
+.ig-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid #3978ed;
+  border-radius: 8px;
+  background: #3978ed;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: .2s ease;
+}
+
+.ig-upload-button:hover {
+  background: #2867d8;
+  border-color: #2867d8;
+}
+
+@media (max-width: 600px) {
+  .ig-topbar-right {
+    gap: 7px;
+  }
+
+  .ig-upload-button {
+    padding: 8px 9px;
+    font-size: 10px;
+  }
+}

@@ -1,0 +1,395 @@
+
+/* Ini untuk mengatur tampilan utama halaman login. */
+.page {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: #f6f8fc;
+  color: #172033;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.backgroundShape {
+  position: absolute;
+  width: 650px;
+  height: 650px;
+  top: -380px;
+  right: -180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #dceaff 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.container {
+  width: min(1180px, calc(100% - 48px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ini untuk bagian logo dan header. */
+.header {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e8edf5;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+}
+
+.logoIcon {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #2463eb;
+  color: white;
+}
+
+.logoAccent {
+  color: #2463eb;
+}
+
+.headerLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7b879b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.statusDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #20b879;
+}
+
+/* Ini untuk judul utama halaman. */
+.hero {
+  text-align: center;
+  padding: 78px 0 54px;
+}
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border-radius: 30px;
+  background: #eaf1ff;
+  color: #2861d8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.hero h1 {
+  margin: 23px 0 13px;
+  color: #17243b;
+  font-size: clamp(35px, 5vw, 53px);
+  line-height: 1.13;
+  letter-spacing: -2px;
+  font-weight: 800;
+}
+
+.hero h1 span {
+  display: block;
+  color: #2863e9;
+}
+
+.hero p {
+  max-width: 580px;
+  margin: 0 auto;
+  color: #778398;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* Ini untuk judul dan susunan tiga pilihan login. */
+.sectionHeading {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.sectionHeading h2 {
+  margin: 0 0 7px;
+  font-size: 22px;
+  color: #202d43;
+  font-weight: 750;
+}
+
+.sectionHeading p {
+  margin: 0;
+  color: #8792a5;
+  font-size: 13px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+.optionCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 25px;
+  border: 1px solid #e7ebf2;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 8px 30px rgba(30, 52, 90, 0.045);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.optionCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(30, 52, 90, 0.09);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 23px;
+}
+
+.optionIcon {
+  width: 49px;
+  height: 49px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+}
+
+.instagramIcon {
+  color: #d94683;
+  background: #fff0f6;
+}
+
+.searchIcon {
+  color: #2863e9;
+  background: #edf3ff;
+}
+
+.excelIcon {
+  color: #169b68;
+  background: #eaf8f1;
+}
+
+.optionNumber {
+  color: #c3cad6;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.optionCard h3 {
+  margin: 0 0 10px;
+  color: #1d2b42;
+  font-size: 19px;
+  font-weight: 750;
+}
+
+.optionCard > p {
+  min-height: 67px;
+  margin: 0;
+  color: #7d899d;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Ini untuk daftar keunggulan setiap metode. */
+.featureList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 23px 0;
+  color: #536177;
+  font-size: 12px;
+}
+
+.featureList span {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.check {
+  width: 17px;
+  height: 17px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9f8f0;
+  color: #159b62;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Ini untuk kolom username Instagram. */
+.usernameInput {
+  display: flex;
+  align-items: center;
+  height: 46px;
+  margin-top: 23px;
+  padding: 0 13px;
+  border: 1px solid #e1e7f0;
+  border-radius: 9px;
+  background: #fbfcfe;
+  color: #8995a8;
+  font-size: 14px;
+}
+
+.usernameInput:focus-within {
+  border-color: #2863e9;
+  box-shadow: 0 0 0 3px rgba(40, 99, 233, 0.08);
+}
+
+.usernameInput input {
+  width: 100%;
+  height: 100%;
+  padding-left: 7px;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #25344c;
+  font-size: 13px;
+}
+
+.inputNote {
+  min-height: 18px;
+  margin-top: 8px;
+  color: #98a2b2;
+  font-size: 10px;
+}
+
+/* Ini untuk tombol aksi di setiap pilihan. */
+.actionButton {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: auto;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 9px;
+  color: white;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.actionButton:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.metaButton {
+  background: #2863e9;
+}
+
+.searchButton {
+  background: #172f55;
+}
+
+.uploadButton {
+  background: #159b68;
+}
+
+/* Ini untuk footer halaman. */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 30px 0;
+  margin-top: 52px;
+  border-top: 1px solid #e8edf5;
+  color: #a0aaba;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Ini untuk menyesuaikan tampilan tablet. */
+@media (max-width: 900px) {
+  .options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .optionCard:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Ini untuk menyesuaikan tampilan HP. */
+@media (max-width: 600px) {
+  .container {
+    width: min(100% - 30px, 440px);
+  }
+
+  .header {
+    min-height: 72px;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .headerLabel {
+    display: none;
+  }
+
+  .hero {
+    padding: 55px 0 38px;
+  }
+
+  .hero h1 {
+    font-size: 36px;
+    letter-spacing: -1.5px;
+  }
+
+  .hero p {
+    font-size: 13px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .optionCard:last-child {
+    grid-column: auto;
+  }
+
+  .optionCard {
+    padding: 22px;
+  }
+
+  .optionCard > p {
+    min-height: auto;
+  }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+    margin-top: 35px;
+  }
+}
