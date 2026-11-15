@@ -7,8 +7,12 @@ import urllib.parse
 import urllib.request
 import urllib.error
 
+from dotenv import load_dotenv
 from fastapi import APIRouter, Cookie
 from fastapi.responses import RedirectResponse, JSONResponse
+
+# Ini untuk membaca konfigurasi rahasia dari file .env lokal.
+load_dotenv()
 
 router = APIRouter(prefix="/api/auth/meta", tags=["Meta Authentication"])
 
