@@ -1,0 +1,438 @@
+
+/* Ini untuk tampilan dasar halaman analisis kompetitor. */
+.page {
+  min-height: 100vh;
+  background: #f5f7fb;
+  color: #17243b;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+  width: min(1120px, calc(100% - 40px));
+  margin: auto;
+}
+
+/* Ini untuk header dan navigasi. */
+.header {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e6ebf3;
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.brand {
+  color: #2463eb;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.headerLabel {
+  color: #8491a5;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* Ini untuk judul dan kolom pencarian username. */
+.hero {
+  max-width: 760px;
+  margin: auto;
+  padding: 65px 0 48px;
+  text-align: center;
+}
+
+.eyebrow {
+  color: #2863e9;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.hero h1 {
+  margin: 13px 0;
+  color: #17243b;
+  font-size: 38px;
+  letter-spacing: -1.5px;
+}
+
+.hero > p {
+  color: #7d899d;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.searchForm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 620px;
+  height: 58px;
+  margin: 28px auto 10px;
+  padding: 6px 7px 6px 17px;
+  border: 1px solid #e1e7f0;
+  border-radius: 12px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(30, 52, 90, 0.05);
+}
+
+.searchForm > span {
+  color: #8995a8;
+  font-size: 16px;
+}
+
+.searchForm input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  color: #26354d;
+  font-size: 14px;
+}
+
+.searchForm button {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #2863e9;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.searchForm button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.helper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #8995a8;
+  font-size: 11px;
+}
+
+/* Ini untuk status loading dan pesan kesalahan. */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 55px 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.error {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 10px auto 35px;
+  padding: 17px;
+  border: 1px solid #f2caca;
+  border-radius: 10px;
+  background: #fff5f5;
+  color: #b42318;
+}
+
+.error p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* Ini untuk menampilkan hasil profil Instagram. */
+.results {
+  padding-bottom: 30px;
+}
+
+.resultHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.resultHeading h2 {
+  margin: 7px 0 0;
+  font-size: 21px;
+}
+
+.resultHeading p {
+  margin: 6px 0 0;
+  color: #8792a5;
+  font-size: 12px;
+}
+
+.source {
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: #eaf8f1;
+  color: #159b68;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.profileCard {
+  padding: 24px;
+  border: 1px solid #e7ebf2;
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(30, 52, 90, 0.04);
+}
+
+.profileMain {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.avatar,
+.avatarPlaceholder {
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  display: grid;
+  place-items: center;
+  background: #edf3ff;
+  color: #2863e9;
+}
+
+.profileInfo h3 {
+  margin: 2px 0 7px;
+  font-size: 18px;
+}
+
+.profileInfo > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #2863e9;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.profileInfo p {
+  margin: 12px 0 7px;
+  color: #68768b;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #edf0f5;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #8390a4;
+}
+
+.stat strong {
+  color: #202e45;
+  font-size: 21px;
+}
+
+.stat span {
+  font-size: 11px;
+}
+
+/* Ini untuk daftar konten publik. */
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.mediaCard {
+  display: flex;
+  flex-direction: column;
+  min-height: 205px;
+  padding: 18px;
+  border: 1px solid #e7ebf2;
+  border-radius: 13px;
+  background: white;
+}
+
+.mediaType {
+  align-self: flex-start;
+  padding: 6px 9px;
+  border-radius: 6px;
+  background: #edf3ff;
+  color: #2863e9;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.caption {
+  display: -webkit-box;
+  min-height: 58px;
+  margin: 15px 0;
+  overflow: hidden;
+  color: #526177;
+  font-size: 12px;
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.mediaStats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  color: #7c899d;
+  font-size: 11px;
+}
+
+.mediaStats span,
+.mediaFooter a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mediaStats strong {
+  color: #26354d;
+}
+
+.mediaFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #edf0f5;
+  color: #929daf;
+  font-size: 10px;
+}
+
+.mediaFooter a {
+  color: #2863e9;
+  text-decoration: none;
+}
+
+.empty {
+  padding: 35px;
+  border: 1px dashed #d9e0eb;
+  border-radius: 12px;
+  color: #8491a5;
+  text-align: center;
+  font-size: 13px;
+}
+
+.disclaimer {
+  margin-top: 20px;
+  color: #8995a8;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.footer {
+  padding: 25px 0;
+  border-top: 1px solid #e6ebf3;
+  color: #a0aaba;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Ini untuk tampilan tablet dan HP. */
+@media (max-width: 800px) {
+  .mediaGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    width: calc(100% - 28px);
+  }
+
+  .headerLabel {
+    display: none;
+  }
+
+  .hero {
+    padding: 45px 0 35px;
+  }
+
+  .hero h1 {
+    font-size: 30px;
+  }
+
+  .searchForm {
+    height: 52px;
+  }
+
+  .searchForm button {
+    padding: 0 12px;
+    font-size: 11px;
+  }
+
+  .helper {
+    align-items: flex-start;
+    text-align: left;
+    line-height: 1.5;
+  }
+
+  .profileCard {
+    padding: 17px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mediaGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .resultHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

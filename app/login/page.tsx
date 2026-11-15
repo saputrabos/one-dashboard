@@ -25,19 +25,19 @@ export default function LoginPage() {
     );
   };
 
-  // Ini untuk memvalidasi username sebelum fitur analisis publik dihubungkan.
-  const handleUsernameLogin = () => {
-    const cleanUsername = username.trim().replace(/^@/, "");
+// Ini untuk mengarahkan username ke halaman analisis kompetitor.
+const handleUsernameLogin = () => {
+  const cleanUsername = username.trim().replace(/^@/, "");
 
-    if (!cleanUsername) {
-      alert("Masukkan username Instagram terlebih dahulu.");
-      return;
-    }
+  if (!cleanUsername) {
+    alert("Masukkan username Instagram terlebih dahulu.");
+    return;
+  }
 
-    alert(
-      `Username @${cleanUsername} sudah dimasukkan. Fitur pengambilan dan analisis data publik perlu dihubungkan ke backend terlebih dahulu.`
-    );
-  };
+  router.push(
+    `/analyze?username=${encodeURIComponent(cleanUsername)}`
+  );
+};
 
   return (
     <main className={styles.page}>
