@@ -18,6 +18,7 @@ import {
   LoaderCircle,
   AlertCircle,
   CheckCircle2,
+  Trash2,
 } from "lucide-react";
 import styles from "./followers.module.css";
 
@@ -97,6 +98,8 @@ export default function FollowerIntelligencePage() {
   const [zipFile, setZipFile] = useState<File | null>(null);
   const [followersFile, setFollowersFile] = useState<File | null>(null);
   const [followingFile, setFollowingFile] = useState<File | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   // Ini untuk memuat username terakhir yang dipakai di browser.
   useEffect(() => {
@@ -215,6 +218,49 @@ export default function FollowerIntelligencePage() {
       setError(caught instanceof Error ? caught.message : "Gagal mengimpor data.");
     } finally {
       setUploading(false);
+    }
+  };
+
+
+  // Ini untuk menghapus satu snapshot berdasarkan ID.
+  const handleDeleteSnapshot = async (snapshotId: number) => {
+    const clean = account.trim().replace(/^@/, "");
+    if (!clean || !window.confirm("Hapus snapshot ini? Perhitungan New Followers dan Unfollowers dapat berubah.")) return;
+    setDeletingId(snapshotId);
+    setError("");
+    setNotice("");
+    try {
+      const query = new URLSearchParams({ account: clean });
+      const response = await fetch(`${API_BASE}/api/followers/snapshot/${snapshotId}?${query}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Gagal menghapus snapshot.");
+      setNotice(data.message || "Snapshot berhasil dihapus.");
+      await loadDashboard(clean);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Gagal menghapus snapshot.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Ini untuk menghapus seluruh riwayat data akun yang sedang dipilih.
+  const handleDeleteAll = async () => {
+    const clean = account.trim().replace(/^@/, "");
+    if (!clean || !window.confirm(`Hapus SEMUA data followers dan riwayat untuk @${clean}? Tindakan ini tidak bisa dibatalkan.`)) return;
+    setDeletingAll(true);
+    setError("");
+    setNotice("");
+    try {
+      const query = new URLSearchParams({ account: clean });
+      const response = await fetch(`${API_BASE}/api/followers/all?${query}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Gagal menghapus seluruh data.");
+      setNotice(data.message || "Seluruh data akun berhasil dihapus.");
+      await loadDashboard(clean);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Gagal menghapus seluruh data.");
+    } finally {
+      setDeletingAll(false);
     }
   };
 
@@ -374,6 +420,10 @@ export default function FollowerIntelligencePage() {
             <h2><History size={19} /> Riwayat Snapshot</h2>
             <p>Setiap impor menyimpan kondisi followers dan following saat itu.</p>
           </div>
+          <button className={styles.deleteAllButton} onClick={() => void handleDeleteAll()} disabled={!summary.has_data || deletingAll || deletingId !== null}>
+            {deletingAll ? <LoaderCircle className={styles.spin} size={15} /> : <Trash2 size={15} />}
+            {deletingAll ? "Menghapus..." : "Hapus Semua Data"}
+          </button>
         </div>
         {history.length ? (
           <div className={styles.historyList}>
@@ -382,6 +432,9 @@ export default function FollowerIntelligencePage() {
                 <div className={styles.historyMarker}>{history.length - index}</div>
                 <div><strong>{dateFormat(entry.created_at)}</strong><span>{numberFormat(entry.followers)} followers · {numberFormat(entry.following)} following</span></div>
                 <span className={styles.snapshotTag}>{index === 0 ? "Terbaru" : "Snapshot"}</span>
+                <button className={styles.deleteSnapshotButton} onClick={() => void handleDeleteSnapshot(entry.id)} disabled={deletingAll || deletingId !== null} aria-label="Hapus snapshot">
+                  {deletingId === entry.id ? <LoaderCircle className={styles.spin} size={15} /> : <Trash2 size={15} />}
+                </button>
               </div>
             ))}
           </div>
