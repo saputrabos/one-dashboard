@@ -104,6 +104,26 @@ export default function FollowerIntelligencePage() {
     if (saved) setAccount(saved);
   }, []);
 
+  // Ini untuk mengambil daftar akun pada tab aktif.
+  const loadList = async (username: string, category: Category, queryText: string) => {
+    const query = new URLSearchParams({
+      account: username,
+      category,
+      search: queryText,
+    });
+    const response = await fetch(`${API_BASE}/api/followers/list?${query}`);
+    if (!response.ok) {
+      if (response.status === 404) {
+        setItems([]);
+        return;
+      }
+      throw new Error("Gagal mengambil daftar akun.");
+    }
+    const data = await response.json();
+    setItems(data.data ?? []);
+  };
+
+
   const loadDashboard = useCallback(async (username: string) => {
     const clean = username.trim().replace(/^@/, "");
     if (!clean) return;
@@ -130,25 +150,6 @@ export default function FollowerIntelligencePage() {
       setLoading(false);
     }
   }, [activeTab, search]);
-
-  // Ini untuk mengambil daftar akun pada tab aktif.
-  const loadList = async (username: string, category: Category, queryText: string) => {
-    const query = new URLSearchParams({
-      account: username,
-      category,
-      search: queryText,
-    });
-    const response = await fetch(`${API_BASE}/api/followers/list?${query}`);
-    if (!response.ok) {
-      if (response.status === 404) {
-        setItems([]);
-        return;
-      }
-      throw new Error("Gagal mengambil daftar akun.");
-    }
-    const data = await response.json();
-    setItems(data.data ?? []);
-  };
 
   // Ini untuk memuat ulang ringkasan dan daftar saat akun, tab, atau pencarian berubah.
   useEffect(() => {
