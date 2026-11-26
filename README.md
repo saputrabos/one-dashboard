@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# One Dashboard
 
-## Getting Started
+One Dashboard adalah platform Instagram Growth Intelligence berbasis Next.js dan FastAPI.
 
-First, run the development server:
+## Menjalankan frontend
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Menjalankan backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Buka terminal baru:
 
-## Learn More
+```powershell
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-To learn more about Next.js, take a look at the following resources:
+Backend berjalan di http://127.0.0.1:8000 dan dokumentasi API tersedia di http://127.0.0.1:8000/docs.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Follower Intelligence
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Buka menu **Follower Intelligence** dari sidebar dashboard atau kunjungi http://localhost:3000/followers.
 
-## Deploy on Vercel
+1. Unduh informasi Instagram melalui Accounts Center / Ekspor info Anda.
+2. Pilih format JSON saat meminta ekspor.
+3. Unggah file ZIP hasil ekspor, atau unggah `followers_1.json` dan `following.json` secara terpisah.
+4. Masukkan username Instagram yang sesuai dengan data ekspor.
+5. Impor pertama menjadi snapshot awal. Impor berikutnya dibandingkan untuk menghitung New Followers dan Unfollowers.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Data snapshot disimpan dalam SQLite pada `backend/followers.db`. File database lokal tersebut diabaikan Git dan tidak ikut terunggah ke repository.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Catatan:** sistem ini menghitung unfollower berdasarkan perbandingan dua snapshot ekspor. Sistem tidak dapat mengetahui siapa yang unfollow sebelum snapshot pertama disimpan. Fitur ini menggunakan data ekspor resmi Instagram, bukan scraping atau password Instagram.
+
+## Catatan autentikasi
+
+Koneksi **Login dengan Meta** yang sudah ada adalah koneksi akun Instagram profesional, bukan autentikasi pengguna untuk masuk ke One Dashboard. Autentikasi pengguna aplikasi dan pembatasan akses per pengguna perlu dibuat terpisah sebelum aplikasi dipublikasikan untuk banyak pengguna.
