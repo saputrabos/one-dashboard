@@ -6,6 +6,7 @@ import sqlite3
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
+from contextlib import contextmanager
 from typing import Any
 
 from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
@@ -16,11 +17,20 @@ router = APIRouter(prefix="/api/followers", tags=["Follower Intelligence"])
 DB_PATH = Path(os.getenv("FOLLOWERS_DB_PATH", str(Path(__file__).parent / "followers.db")))
 
 
+@contextmanager
 def get_connection():
+    # Ini untuk memastikan koneksi SQLite selalu ditutup setelah query selesai.
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
-    return connection
+    try:
+        yield connection
+        connection.commit()
+    except Exception:
+        connection.rollback()
+        raise
+    finally:
+        connection.close()
 
 
 def initialize_database():
