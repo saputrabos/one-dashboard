@@ -1,6 +1,7 @@
 
 from competitor import router as competitor_router
 from auth import router as meta_auth_router
+from followers import router as followers_router
 
 # Ini untuk mengimpor FastAPI sebagai framework backend.
 from fastapi import FastAPI, Query
@@ -32,6 +33,7 @@ app.add_middleware(
 # Ini untuk mengaktifkan endpoint analisis akun kompetitor.
 app.include_router(competitor_router)
 app.include_router(meta_auth_router)
+app.include_router(followers_router)
 
 # Ini untuk menyediakan data konten contoh.
 # Nantinya data ini akan diganti dengan data dari database dan Instagram API.
