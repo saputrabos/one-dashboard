@@ -105,7 +105,7 @@ export default function FollowerIntelligencePage() {
   }, []);
 
   // Ini untuk mengambil daftar akun pada tab aktif.
-  const loadList = async (username: string, category: Category, queryText: string) => {
+  const loadList = useCallback(async (username: string, category: Category, queryText: string) => {
     const query = new URLSearchParams({
       account: username,
       category,
@@ -149,7 +149,7 @@ export default function FollowerIntelligencePage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, search]);
+  }, [activeTab, search, loadList]);
 
   // Ini untuk memuat ulang ringkasan dan daftar saat akun, tab, atau pencarian berubah.
   useEffect(() => {
