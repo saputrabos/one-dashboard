@@ -149,21 +149,10 @@ export default function FollowerIntelligencePage() {
     setItems(data.data ?? []);
   };
 
-  // Ini untuk memuat data otomatis setelah username tersimpan tersedia.
+  // Ini untuk memuat ulang ringkasan dan daftar saat akun, tab, atau pencarian berubah.
   useEffect(() => {
     if (account.trim()) void loadDashboard(account);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Ini untuk mengganti daftar ketika kategori atau pencarian berubah.
-  useEffect(() => {
-    const clean = account.trim().replace(/^@/, "");
-    if (clean && summary.has_data) {
-      void loadList(clean, activeTab, search).catch((caught) => {
-        setError(caught instanceof Error ? caught.message : "Gagal memuat daftar.");
-      });
-    }
-  }, [account, activeTab, search, summary.has_data]);
+  }, [account, loadDashboard]);
 
   // Ini untuk menangani pemilihan file ZIP.
   const handleZipChange = (event: ChangeEvent<HTMLInputElement>) => {
