@@ -79,3 +79,43 @@
   .panelHeading { align-items: flex-start; flex-direction: column; }
   .searchBox, .searchBox input { width: 100%; }
 }
+
+
+/* Ini untuk tombol hapus snapshot dan hapus seluruh data akun. */
+.deleteAllButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid #fecaca;
+  border-radius: 9px;
+  background: #fff7f7;
+  color: #b42318;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.deleteAllButton:disabled, .deleteSnapshotButton:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+.deleteSnapshotButton {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 8px;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  background: #fff;
+  color: #dc2626;
+  cursor: pointer;
+}
+.deleteSnapshotButton:hover, .deleteAllButton:hover {
+  background: #feecec;
+}
+@media (max-width: 560px) {
+  .deleteAllButton { width: 100%; }
+}
