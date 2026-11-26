@@ -83,6 +83,7 @@ button, input, select {
 
 .ig-menu-item {
   display: flex;
+  text-decoration: none;
   align-items: center;
   gap: 11px;
   width: 100%;
