@@ -1,6 +1,9 @@
 
 "use client";
 
+// Ini untuk membuat tautan menuju fitur Follower Intelligence.
+import Link from "next/link";
+
 // Ini untuk menggunakan state, efek, dan memoization React.
 import { useEffect, useMemo, useState } from "react";
 
@@ -812,6 +815,10 @@ export default function Dashboard() {
         <div className="ig-menu-label">{t.menuLabel}</div>
 
         <nav className="ig-menu">
+          <Link href="/followers" className="ig-menu-item">
+            <Users size={18} />
+            <span>Follower Intelligence</span>
+          </Link>
           {menuItems.map((item) => {
             const Icon = item.icon;
 
