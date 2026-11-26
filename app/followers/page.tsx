@@ -121,9 +121,9 @@ export default function FollowerIntelligencePage() {
     }
     const data = await response.json();
     setItems(data.data ?? []);
-  };
+  }, []);
 
-
+  // Ini untuk memuat ringkasan dan daftar akun berdasarkan username aktif.
   const loadDashboard = useCallback(async (username: string) => {
     const clean = username.trim().replace(/^@/, "");
     if (!clean) return;
