@@ -1,7 +1,8 @@
 "use client";
 
 // Ini untuk mengelola data, pencarian, dan proses unggah ekspor Instagram.
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
