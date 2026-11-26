@@ -347,3 +347,34 @@ def follower_history(account: str = Query(...)):
             for row in rows
         ],
     }
+
+
+@router.delete("/snapshot/{snapshot_id}")
+def delete_snapshot(snapshot_id: int, account: str = Query(...)):
+    # Ini untuk menghapus satu snapshot milik akun yang sesuai.
+    account_name = normalize_account(account)
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "DELETE FROM follower_snapshots WHERE id = ? AND account = ?",
+            (snapshot_id, account_name),
+        )
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="Snapshot tidak ditemukan untuk akun ini.")
+    return {"success": True, "message": "Snapshot berhasil dihapus.", "snapshot_id": snapshot_id}
+
+
+@router.delete("/all")
+def delete_all_snapshots(account: str = Query(...)):
+    # Ini untuk menghapus seluruh snapshot milik satu username tanpa menyentuh akun lain.
+    account_name = normalize_account(account)
+    with get_connection() as connection:
+        cursor = connection.execute(
+            "DELETE FROM follower_snapshots WHERE account = ?",
+            (account_name,),
+        )
+        deleted_count = cursor.rowcount
+    return {
+        "success": True,
+        "deleted_count": deleted_count,
+        "message": f"Seluruh data dan riwayat @{account_name} berhasil dihapus.",
+    }
