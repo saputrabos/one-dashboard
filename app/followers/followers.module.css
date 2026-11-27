@@ -24,12 +24,10 @@
 .fieldLabel { display: block; color: #475569; font-size: 12px; font-weight: 700; margin-bottom: 8px; }
 .accountInput { display: flex; align-items: center; gap: 8px; max-width: 420px; border: 1px solid #dce3ed; border-radius: 10px; padding: 0 13px; height: 44px; color: #77849a; }
 .accountInput input { border: 0; outline: 0; flex: 1; min-width: 0; color: #1e293b; background: transparent; }
-.fileGrid { display: grid; grid-template-columns: 1.2fr auto 1fr 1fr; gap: 12px; align-items: stretch; margin-top: 18px; }
-.fileChoice { min-height: 112px; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 7px; color: #52617a; cursor: pointer; overflow: hidden; }
-.fileChoice strong { font-size: 12px; color: #26354e; }
-.fileChoice span { font-size: 11px; color: #8792a5; overflow-wrap: anywhere; }
-.fileChoice input { width: 100%; font-size: 11px; margin-top: auto; }
-.orText { align-self: center; color: #9aa4b5; font-size: 9px; font-weight: 800; letter-spacing: .06em; writing-mode: vertical-rl; }
+.fileChoice { min-height: 112px; margin-top: 18px; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 17px; display: flex; flex-direction: column; gap: 8px; color: #52617a; cursor: pointer; overflow: hidden; }
+.fileChoice strong { font-size: 13px; color: #26354e; }
+.fileChoice span { font-size: 12px; color: #8792a5; overflow-wrap: anywhere; }
+.fileChoice input { width: 100%; font-size: 11px; margin-top: 5px; }
 .importButton { margin-top: 17px; border: 0; border-radius: 10px; background: #273d80; color: white; padding: 12px 17px; display: inline-flex; align-items: center; gap: 9px; font-weight: 700; cursor: pointer; }
 .importButton:disabled, .refreshButton:disabled { opacity: .6; cursor: wait; }
 .privacyNote { color: #9aa4b5; font-size: 11px; margin: 11px 0 0; }
@@ -65,15 +63,12 @@
 .spin { animation: spin 1s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 900px) {
-  .fileGrid { grid-template-columns: 1fr 1fr; }
-  .orText { writing-mode: initial; grid-column: 1 / -1; text-align: center; }
   .statGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 560px) {
   .page { padding: 24px 14px 40px; }
   .header { align-items: flex-start; flex-direction: column; }
   .importPanel, .dataPanel, .historyPanel { padding: 17px; }
-  .fileGrid { grid-template-columns: 1fr; }
   .statGrid { grid-template-columns: 1fr 1fr; gap: 9px; }
   .statCard { padding: 14px; }
   .panelHeading { align-items: flex-start; flex-direction: column; }
