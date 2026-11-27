@@ -172,7 +172,7 @@ export default function FollowerIntelligencePage() {
       return;
     }
     const zipFile = selectedFiles.find((file) => file.name.toLowerCase().endsWith(".zip"));
-    const followersFile = selectedFiles.find((file) => /^followers(?:_\\d+)?\\.json$/i.test(file.name));
+    const followersFile = selectedFiles.find((file) => /^followers(?:_\d+)?\.json$/i.test(file.name));
     const followingFile = selectedFiles.find((file) => file.name.toLowerCase() === "following.json");
 
     if (zipFile && selectedFiles.length !== 1) {
