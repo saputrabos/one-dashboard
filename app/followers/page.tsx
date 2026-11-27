@@ -95,9 +95,7 @@ export default function FollowerIntelligencePage() {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const [zipFile, setZipFile] = useState<File | null>(null);
-  const [followersFile, setFollowersFile] = useState<File | null>(null);
-  const [followingFile, setFollowingFile] = useState<File | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deletingAll, setDeletingAll] = useState(false);
 
@@ -159,21 +157,11 @@ export default function FollowerIntelligencePage() {
     if (account.trim()) void loadDashboard(account);
   }, [account, loadDashboard]);
 
-  // Ini untuk menangani pemilihan file ZIP.
-  const handleZipChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setZipFile(event.target.files?.[0] ?? null);
-    setFollowersFile(null);
-    setFollowingFile(null);
-  };
-
-  // Ini untuk menangani pemilihan dua file JSON Instagram.
-  const handleFollowersChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFollowersFile(event.target.files?.[0] ?? null);
-    setZipFile(null);
-  };
-  const handleFollowingChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFollowingFile(event.target.files?.[0] ?? null);
-    setZipFile(null);
+  // Satu pemilih file untuk ZIP atau dua file JSON sekaligus.
+  const handleFilesChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setSelectedFiles(Array.from(event.target.files ?? []));
+    setError("");
+    setNotice("");
   };
 
   // Ini untuk mengirim file ke backend dan menyimpan snapshot baru.
@@ -183,8 +171,20 @@ export default function FollowerIntelligencePage() {
       setError("Masukkan username Instagram terlebih dahulu.");
       return;
     }
-    if (!zipFile && (!followersFile || !followingFile)) {
-      setError("Pilih satu file ZIP atau lengkapi kedua file JSON.");
+    const zipFile = selectedFiles.find((file) => file.name.toLowerCase().endsWith(".zip"));
+    const followersFile = selectedFiles.find((file) => /^followers(?:_\\d+)?\\.json$/i.test(file.name));
+    const followingFile = selectedFiles.find((file) => file.name.toLowerCase() === "following.json");
+
+    if (zipFile && selectedFiles.length !== 1) {
+      setError("Jika menggunakan ZIP, pilih ZIP saja.");
+      return;
+    }
+    if (!zipFile && (!followersFile || !followingFile || selectedFiles.length < 2)) {
+      setError("Pilih satu ZIP, atau pilih followers_1.json dan following.json sekaligus.");
+      return;
+    }
+    if (selectedFiles.some((file) => !file.name.toLowerCase().endsWith(".zip") && !file.name.toLowerCase().endsWith(".json"))) {
+      setError("Format file harus ZIP atau JSON dari Instagram.");
       return;
     }
 
@@ -210,9 +210,7 @@ export default function FollowerIntelligencePage() {
         throw new Error(data.detail || "Gagal mengimpor file Instagram.");
       }
       setNotice(data.message);
-      setZipFile(null);
-      setFollowersFile(null);
-      setFollowingFile(null);
+      setSelectedFiles([]);
       await loadDashboard(clean);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Gagal mengimpor data.");
@@ -315,27 +313,17 @@ export default function FollowerIntelligencePage() {
           />
         </div>
 
-        <div className={styles.fileGrid}>
-          <label className={styles.fileChoice}>
-            <FileArchive size={20} />
-            <strong>Upload ZIP (disarankan)</strong>
-            <span>{zipFile?.name ?? "Pilih file ZIP ekspor Instagram"}</span>
-            <input type="file" accept=".zip,application/zip" onChange={handleZipChange} />
-          </label>
-          <div className={styles.orText}>ATAU UPLOAD JSON TERPISAH</div>
-          <label className={styles.fileChoice}>
-            <Upload size={20} />
-            <strong>File followers_1.json</strong>
-            <span>{followersFile?.name ?? "Pilih file followers"}</span>
-            <input type="file" accept=".json,application/json" onChange={handleFollowersChange} />
-          </label>
-          <label className={styles.fileChoice}>
-            <Upload size={20} />
-            <strong>File following.json</strong>
-            <span>{followingFile?.name ?? "Pilih file following"}</span>
-            <input type="file" accept=".json,application/json" onChange={handleFollowingChange} />
-          </label>
-        </div>
+        <label className={styles.fileChoice}>
+          <FileArchive size={20} />
+          <strong>Pilih file ekspor Instagram</strong>
+          <span>{selectedFiles.length ? selectedFiles.map((file) => file.name).join(", ") : "Pilih ZIP atau dua file JSON sekaligus (followers_1.json + following.json)"}</span>
+          <input
+            type="file"
+            accept=".zip,.json,application/zip,application/json"
+            multiple
+            onChange={handleFilesChange}
+          />
+        </label>
         <button className={styles.importButton} onClick={() => void handleImport()} disabled={uploading}>
           {uploading ? <LoaderCircle className={styles.spin} size={18} /> : <Upload size={18} />}
           {uploading ? "Memproses data..." : "Impor dan Simpan Snapshot"}
