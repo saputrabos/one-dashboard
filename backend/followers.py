@@ -65,8 +65,15 @@ def normalize_account(account: str) -> str:
 
 
 def collect_usernames(value: Any) -> set[str]:
-    # Ini untuk mengambil username dari struktur JSON ekspor Instagram.
+    # Ini untuk membaca format followers dan following dari ekspor Instagram.
     usernames: set[str] = set()
+
+    def add_username(candidate: Any):
+        if not isinstance(candidate, str):
+            return
+        username = candidate.strip().lstrip("@").lower()
+        if username and username not in {"none", "null"}:
+            usernames.add(username)
 
     def walk(node: Any):
         if isinstance(node, list):
@@ -79,18 +86,27 @@ def collect_usernames(value: Any) -> set[str]:
 
         string_items = node.get("string_list_data")
         if isinstance(string_items, list):
-            for entry in string_items:
-                if isinstance(entry, dict) and entry.get("value"):
-                    usernames.add(str(entry["value"]).strip().lstrip("@").lower())
+            # Pada file following.json, username biasanya berada di properti "title".
+            # Pada file followers_1.json, username biasanya berada di "value".
+            add_username(node.get("title"))
 
-        # Format ekspor Instagram bisa menggunakan nama properti yang berbeda.
-        for key in ("relationships_following", "relationships_followers", "followers", "following"):
+            for entry in string_items:
+                if isinstance(entry, dict):
+                    add_username(entry.get("value"))
+
+        # Menangani beberapa variasi struktur ekspor Instagram.
+        for key in (
+            "relationships_following",
+            "relationships_followers",
+            "followers",
+            "following",
+        ):
             child = node.get(key)
             if isinstance(child, (list, dict)):
                 walk(child)
 
     walk(value)
-    return {name for name in usernames if name}
+    return usernames
 
 
 def read_json_file(raw: bytes, label: str) -> Any:
@@ -109,7 +125,7 @@ async def parse_uploads(
     followers_file: UploadFile | None,
     following_file: UploadFile | None,
 ) -> tuple[set[str], set[str]]:
-    followers_payload = None
+    followers_payloads = []
     following_payload = None
 
     if zip_file is not None:
@@ -117,35 +133,72 @@ async def parse_uploads(
         try:
             with zipfile.ZipFile(io.BytesIO(raw_zip)) as archive:
                 names = archive.namelist()
-                follower_path = next(
-                    (name for name in names if Path(name).name.lower().startswith("followers_")
-                     and name.lower().endswith(".json")),
-                    None,
+
+                # Instagram dapat membagi followers ke followers_1.json,
+                # followers_2.json, dan seterusnya. Semua file harus digabung.
+                follower_paths = sorted(
+                    (
+                        name for name in names
+                        if Path(name).name.lower().startswith("followers")
+                        and Path(name).name.lower().endswith(".json")
+                    ),
+                    key=lambda name: (
+                        0 if Path(name).stem.lower() == "followers_1" else 1,
+                        Path(name).name.lower(),
+                    ),
                 )
                 following_path = next(
-                    (name for name in names if Path(name).name.lower() == "following.json"),
+                    (
+                        name for name in names
+                        if Path(name).name.lower() == "following.json"
+                    ),
                     None,
                 )
-                if not follower_path or not following_path:
+
+                if not follower_paths or not following_path:
                     raise HTTPException(
                         status_code=400,
-                        detail="ZIP tidak menemukan followers_1.json dan following.json. "
-                               "Pastikan ekspor Instagram menggunakan format JSON.",
+                        detail=(
+                            "ZIP tidak menemukan file followers*.json dan following.json. "
+                            "Pastikan ekspor Instagram menggunakan format JSON."
+                        ),
                     )
-                followers_payload = read_json_file(archive.read(follower_path), "followers")
-                following_payload = read_json_file(archive.read(following_path), "following")
+
+                for follower_path in follower_paths:
+                    followers_payloads.append(
+                        read_json_file(
+                            archive.read(follower_path),
+                            Path(follower_path).name,
+                        )
+                    )
+
+                following_payload = read_json_file(
+                    archive.read(following_path),
+                    "following",
+                )
         except zipfile.BadZipFile:
-            raise HTTPException(status_code=400, detail="File yang diunggah bukan ZIP yang valid.")
+            raise HTTPException(
+                status_code=400,
+                detail="File yang diunggah bukan ZIP yang valid.",
+            )
     else:
         if followers_file is None or following_file is None:
             raise HTTPException(
                 status_code=400,
                 detail="Unggah satu file ZIP, atau unggah kedua file followers dan following JSON.",
             )
-        followers_payload = read_json_file(await followers_file.read(), "followers")
-        following_payload = read_json_file(await following_file.read(), "following")
+        followers_payloads.append(
+            read_json_file(await followers_file.read(), "followers")
+        )
+        following_payload = read_json_file(
+            await following_file.read(),
+            "following",
+        )
 
-    followers = collect_usernames(followers_payload)
+    followers: set[str] = set()
+    for payload in followers_payloads:
+        followers.update(collect_usernames(payload))
+
     following = collect_usernames(following_payload)
 
     if not followers and not following:
